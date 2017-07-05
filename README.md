@@ -5,6 +5,10 @@ Implementation of Partial Canonical Correlation Analysis(PCCA) interpretation of
 To check whether the calculation result is correct,`create-test-data.py` generates test data.
 The data is generated following the below equation.
 
+[test-equation](http://i.imgur.com/pTSqXAo.png)
+
+
+<!--- 
 ```math
 \begin{align*}
 & \bm{X}_{t}=\bm{Y}_{t-1}+\epsilon_{x,t} \\
@@ -16,7 +20,7 @@ The data is generated following the below equation.
     \bm{Y}_{t-1}+\epsilon_{y,x}\\
 \end{align*}
 ```
-
+--->
  
 
 # Reference
