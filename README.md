@@ -5,7 +5,8 @@ Implementation of Partial Canonical Correlation Analysis(PCCA) interpretation of
 To check whether the calculation result is correct,`create-test-data.py` generates test data.
 The data is generated following the below equation.
 
-[test-equation](http://i.imgur.com/pTSqXAo.png)
+<img src="http://i.imgur.com/pTSqXAo.png" alt="test-equation"/>
+
 
 
 <!--- 
