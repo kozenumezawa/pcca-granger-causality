@@ -1,4 +1,4 @@
-def drawGraph(X, Y, m_x, m_y, N):
+def plotGraph(X, Y, m_x, m_y, N):
     import matplotlib.pyplot as plt
     t = range(N)
 
@@ -13,6 +13,7 @@ def drawGraph(X, Y, m_x, m_y, N):
 
 if __name__ == "__main__":
     import numpy as np
+    import json
 
 
     N = 100         # length of time series
@@ -37,4 +38,13 @@ if __name__ == "__main__":
         Y[t] = np.dot(A, Y[t-1]) + s_y[t]
         X[t] = Y[t-1] + s_x[t]
 
-    drawGraph(X, Y, m_x, m_y, N)
+    plotGraph(X, Y, m_x, m_y, N)
+
+    save_json = {
+        "X": X.tolist(),
+        "Y": Y.tolist()
+    }
+    f = open("./test-data.json", "w")
+    json.dump(save_json, f)
+    f.close()
+

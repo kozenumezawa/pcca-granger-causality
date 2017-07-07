@@ -29,5 +29,5 @@ The data is generated following the below equation.
 --->
  
 
-# Reference
+# References
 [1]: [Causal flow](http://ieeexplore.ieee.org/document/6175964/), Yamashita, Yuya Harada, Tatsuya Kuniyoshi, Yasuo, IEEE Transactions on Multimedia(2012)
