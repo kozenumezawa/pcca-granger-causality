@@ -21,7 +21,7 @@ if __name__ == "__main__":
     m_y = 3         # the number of variables of X
 
     mean = 0
-    sigma_x = 0.02
+    sigma_x = 0.01
     sigma_y = 0.1
     s_x = np.array([np.random.normal(mean, sigma_x, m_x) for _ in range(N)])
     s_y = np.array([np.random.normal(mean, sigma_y, m_y) for _ in range(N)])

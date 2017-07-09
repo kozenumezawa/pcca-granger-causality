@@ -16,7 +16,7 @@ class CausalCalculator:
     def calcSigmaHat(self, sigma, eta):
         return sigma + eta * np.identity(sigma.shape[0])
 
-    def calcGrangerCausality(self, k, m):
+    def calcGrangerCausality(self, k, m, eta_xt=0.00001, eta_yt= 0.00001, eta_xtkm=0.00001):
         """
 
         :param k:
@@ -86,11 +86,6 @@ class CausalCalculator:
         sigma_ytkm_yt = sigma[  x_t_dim + y_t_dim + x_tk_m_dim:,      x_t_dim:x_t_dim + y_t_dim]
         sigma_ytkm_xtkm = sigma[x_t_dim + y_t_dim + x_tk_m_dim:,    x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
         sigma_ytkm_ytkm = sigma[x_t_dim + y_t_dim + x_tk_m_dim:,    x_t_dim + y_t_dim + x_tk_m_dim:]
-
-        eta_xtkm = 0.00001
-        eta_xt = eta_xtkm
-        eta_yt = eta_xtkm
-
 
         sigma_tilde_ytkm_xt_xtkm = sigma_ytkm_xt\
                                  - np.dot(np.dot(2 * sigma_ytkm_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt)\
