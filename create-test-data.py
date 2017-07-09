@@ -40,7 +40,7 @@ if __name__ == "__main__":
         Y[t] = np.dot(A, Y[t-1]) + s_y[t]
         X[t] = Y[t-1] + s_x[t]
 
-    plotGraph(X, Y, m_x, m_y, N)
+    # plotGraph(X, Y, m_x, m_y, N)
 
     save_json = {
         "X": X.tolist(),

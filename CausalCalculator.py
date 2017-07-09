@@ -42,15 +42,15 @@ class CausalCalculator:
             cut_y = self.Y[t - k - m + 1: t - k + 1]
             y_tk_m.append(np.ravel(cut_y[::-1]))         # reverse the array and make the array 1d array
 
-        x_t = np.array(x_t)
-        y_t = np.array(y_t)
-        x_tk_m = np.array(x_tk_m)
-        y_tk_m = np.array(y_tk_m)
+        x_t = (np.array(x_t)).T
+        y_t = (np.array(y_t)).T
+        x_tk_m = (np.array(x_tk_m)).T
+        y_tk_m = (np.array(y_tk_m)).T
 
-        x_t = x_t.T
-        y_t = y_t.T
-        x_tk_m = x_tk_m.T
-        y_tk_m = y_tk_m.T
+        # x_t = x_t.T
+        # y_t = y_t.T
+        # x_tk_m = x_tk_m.T
+        # y_tk_m = y_tk_m.T
 
         x_t_dim = x_t.shape[0]
         y_t_dim = y_t.shape[0]
@@ -60,27 +60,7 @@ class CausalCalculator:
         x = np.r_[x_t, y_t]
         y = np.r_[x_tk_m, y_tk_m]
 
-        sigma_xt_xt = np.cov(m=x_t, y=x_t, rowvar=True)    # each column represents a variable, while the rows contain observations
-        sigma_xt_yt = np.cov(m=x_t, y=y_t, rowvar=True)
-        sigma_xt_xtkm = np.cov(m=x_t, y=x_tk_m, rowvar=True)
-        sigma_xt_ytkm = np.cov(m=x_t, y=y_tk_m, rowvar=True)
-
-        sigma_yt_xt = np.cov(m=y_t, y=x_t, rowvar=True)
-        sigma_yt_yt = np.cov(m=y_t, y=y_t, rowvar=True)
-        sigma_yt_xtkm = np.cov(m=y_t, y=x_tk_m, rowvar=True)
-        sigma_yt_ytkm = np.cov(m=y_t, y=y_tk_m, rowvar=True)
-
-        sigma_xtkm_xt = np.cov(m=x_tk_m, y=x_t, rowvar=True)
-        sigma_xtkm_yt = np.cov(m=x_tk_m, y=y_t, rowvar=True)
-        sigma_xtkm_xtkm = np.cov(m=x_tk_m, y=x_tk_m, rowvar=True)
-        sigma_xtkm_ytkm = np.cov(m=x_tk_m, y=y_tk_m, rowvar=True)
-
-        sigma_ytkm_xt = np.cov(m=y_tk_m, y=x_t, rowvar=True)
-        sigma_ytkm_yt = np.cov(m=y_tk_m, y=y_t, rowvar=True)
-        sigma_ytkm_xtkm = np.cov(m=y_tk_m, y=x_tk_m, rowvar=True)
-        sigma_ytkm_ytkm = np.cov(m=y_tk_m, y=y_tk_m, rowvar=True)
-
-        sigma = np.cov(m=x, y=y, rowvar=True)
+        sigma = np.cov(m=x, y=y, rowvar=True)   # row of x and y represents a variable, and each column a single observation
         """ sigma = ( sigma_xt_xt   sigma_xt_yt     sigma_xt_xtkm       sigma_xt_ytkm ) 
                     ( sigma_yt_xt   sigma_yt_yt     sigma_yt_xtkm       sigma_yt_ytkm )
                     ( sigma_xtkm_xt sigma_xtkm_yt   sigma_xtkm_xtkm     sigma_xtkm_ytkm )
@@ -120,9 +100,6 @@ class CausalCalculator:
                                    - np.dot(np.dot(2 * sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt) \
                                    + np.dot(np.dot(np.dot(np.dot(sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt)
 
-        # print sigma_xt_xt.shape
-        # print (np.dot(np.dot(2 * sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)).shape
-        # print (np.dot(np.dot(np.dot(np.dot(sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)).shape
         sigma_tilde_xt_ytkm_xtkm = sigma_xt_ytkm \
                                    - np.dot(np.dot(2 * sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm) \
                                    + np.dot(np.dot(np.dot(np.dot(sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)
@@ -139,5 +116,5 @@ class CausalCalculator:
         if eigenvalue > 1.0:
             eigenvalue = 0.9999
         Gyx = 0.5 * math.log(1 / (1 - eigenvalue), 2)
-        print Gyx
-        # np.set_printoptions(precision=3, suppress=True)
+
+        return Gyx
