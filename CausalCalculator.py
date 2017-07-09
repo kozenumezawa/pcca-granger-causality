@@ -18,9 +18,12 @@ class CausalCalculator:
 
     def calcGrangerCausality(self, k, m, eta_xt=0.00001, eta_yt= 0.00001, eta_xtkm=0.00001):
         """
-
+        
         :param k:
         :param m:
+        :param eta_xt:
+        :param eta_yt:
+        :param eta_xtkm:
         :return:
         """
         N = self.X.shape[0]
@@ -47,45 +50,37 @@ class CausalCalculator:
         x_tk_m = (np.array(x_tk_m)).T
         y_tk_m = (np.array(y_tk_m)).T
 
-        # x_t = x_t.T
-        # y_t = y_t.T
-        # x_tk_m = x_tk_m.T
-        # y_tk_m = y_tk_m.T
-
-        x_t_dim = x_t.shape[0]
-        y_t_dim = y_t.shape[0]
-        x_tk_m_dim = x_tk_m.shape[0]
-        y_tk_m_dim = y_tk_m.shape[0]
+        dim_x_t = x_t.shape[0]
+        dim_y_t = y_t.shape[0]
+        dim_x_tk_m = x_tk_m.shape[0]
 
         x = np.r_[x_t, y_t]
         y = np.r_[x_tk_m, y_tk_m]
 
         sigma = np.cov(m=x, y=y, rowvar=True)   # row of x and y represents a variable, and each column a single observation
-        """ sigma = ( sigma_xt_xt   sigma_xt_yt     sigma_xt_xtkm       sigma_xt_ytkm ) 
-                    ( sigma_yt_xt   sigma_yt_yt     sigma_yt_xtkm       sigma_yt_ytkm )
-                    ( sigma_xtkm_xt sigma_xtkm_yt   sigma_xtkm_xtkm     sigma_xtkm_ytkm )
-                    ( sigma_ytkm_xt sigma_ytkm_yt   sigma_ytkm_xtkm     sigma_ytkm_ytkm )
+        """ 
+        sigma = ( sigma_xt_xt   sigma_xt_yt     sigma_xt_xtkm       sigma_xt_ytkm ) 
+                ( sigma_yt_xt   sigma_yt_yt     sigma_yt_xtkm       sigma_yt_ytkm )
+                ( sigma_xtkm_xt sigma_xtkm_yt   sigma_xtkm_xtkm     sigma_xtkm_ytkm )
+                ( sigma_ytkm_xt sigma_ytkm_yt   sigma_ytkm_xtkm     sigma_ytkm_ytkm )
         """
 
-        sigma_xt_xt = sigma[    0:x_t_dim,                          0:x_t_dim]
-        sigma_xt_yt = sigma[    0:x_t_dim,                          x_t_dim:x_t_dim + y_t_dim]
-        sigma_xt_xtkm = sigma[  0:x_t_dim,                          x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
-        sigma_xt_ytkm = sigma[  0:x_t_dim,                          x_t_dim + y_t_dim + x_tk_m_dim:]
+        yt_start_idx = dim_x_t
+        xtkm_start_idx = dim_x_t + dim_y_t
+        ytkm_start_idx = dim_x_t + dim_y_t + dim_x_tk_m
 
-        sigma_yt_xt = sigma[    x_t_dim:x_t_dim + y_t_dim,          0:x_t_dim]
-        sigma_yt_yt = sigma[    x_t_dim:x_t_dim + y_t_dim:x_t_dim,  x_t_dim:x_t_dim + y_t_dim]
-        sigma_yt_xtkm = sigma[  x_t_dim:x_t_dim + y_t_dim:x_t_dim,  x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
-        sigma_yt_ytkm = sigma[  x_t_dim:x_t_dim + y_t_dim:x_t_dim,  x_t_dim + y_t_dim + x_tk_m_dim:]
+        sigma_xt_xt = sigma[    0 : yt_start_idx, 0              : yt_start_idx]
+        sigma_xt_xtkm = sigma[  0 : yt_start_idx, xtkm_start_idx : ytkm_start_idx]
+        sigma_xt_ytkm = sigma[  0 : yt_start_idx, ytkm_start_idx :]
 
-        sigma_xtkm_xt = sigma[  x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,      0:x_t_dim]
-        sigma_xtkm_yt = sigma[  x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,      x_t_dim:x_t_dim + y_t_dim]
-        sigma_xtkm_xtkm = sigma[x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,    x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
-        sigma_xtkm_ytkm = sigma[x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,    x_t_dim + y_t_dim + x_tk_m_dim:]
+        sigma_xtkm_xt = sigma[  xtkm_start_idx : ytkm_start_idx, 0 : yt_start_idx]
+        sigma_xtkm_xtkm = sigma[xtkm_start_idx : ytkm_start_idx, xtkm_start_idx : ytkm_start_idx]
+        sigma_xtkm_ytkm = sigma[xtkm_start_idx : ytkm_start_idx, ytkm_start_idx : ]
 
-        sigma_ytkm_xt = sigma[  x_t_dim + y_t_dim + x_tk_m_dim:,      0:x_t_dim]
-        sigma_ytkm_yt = sigma[  x_t_dim + y_t_dim + x_tk_m_dim:,      x_t_dim:x_t_dim + y_t_dim]
-        sigma_ytkm_xtkm = sigma[x_t_dim + y_t_dim + x_tk_m_dim:,    x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
-        sigma_ytkm_ytkm = sigma[x_t_dim + y_t_dim + x_tk_m_dim:,    x_t_dim + y_t_dim + x_tk_m_dim:]
+        sigma_ytkm_xt = sigma[  ytkm_start_idx:, 0              : yt_start_idx]
+        sigma_ytkm_xtkm = sigma[ytkm_start_idx:, xtkm_start_idx : ytkm_start_idx]
+        sigma_ytkm_ytkm = sigma[ytkm_start_idx:, ytkm_start_idx : ]
+
 
         sigma_tilde_ytkm_xt_xtkm = sigma_ytkm_xt\
                                  - np.dot(np.dot(2 * sigma_ytkm_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt)\
