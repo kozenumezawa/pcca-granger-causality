@@ -47,29 +47,70 @@ class CausalCalculator:
         x_tk_m = np.array(x_tk_m)
         y_tk_m = np.array(y_tk_m)
 
-        sigma_xt_xt = np.cov(m=x_t, y=x_t, rowvar=False)    # each column represents a variable, while the rows contain observations
-        sigma_xt_yt = np.cov(m=x_t, y=y_t, rowvar=False)
-        sigma_xt_xtkm = np.cov(m=x_t, y=x_tk_m, rowvar=False)
-        sigma_xt_ytkm = np.cov(m=x_t, y=y_tk_m, rowvar=False)
+        x_t = x_t.T
+        y_t = y_t.T
+        x_tk_m = x_tk_m.T
+        y_tk_m = y_tk_m.T
 
-        sigma_yt_xt = np.cov(m=y_t, y=x_t, rowvar=False)
-        sigma_yt_yt = np.cov(m=y_t, y=y_t, rowvar=False)
-        sigma_yt_xtkm = np.cov(m=y_t, y=x_tk_m, rowvar=False)
-        sigma_yt_ytkm = np.cov(m=y_t, y=y_tk_m, rowvar=False)
+        x_t_dim = x_t.shape[0]
+        y_t_dim = y_t.shape[0]
+        x_tk_m_dim = x_tk_m.shape[0]
+        y_tk_m_dim = y_tk_m.shape[0]
 
-        sigma_xtkm_xt = np.cov(m=x_tk_m, y=x_t, rowvar=False)
-        sigma_xtkm_yt = np.cov(m=x_tk_m, y=y_t, rowvar=False)
-        sigma_xtkm_xtkm = np.cov(m=x_tk_m, y=x_tk_m, rowvar=False)
-        sigma_xtkm_ytkm = np.cov(m=x_tk_m, y=y_tk_m, rowvar=False)
+        x = np.r_[x_t, y_t]
+        y = np.r_[x_tk_m, y_tk_m]
 
-        sigma_ytkm_xt = np.cov(m=y_tk_m, y=x_t, rowvar=False)
-        sigma_ytkm_yt = np.cov(m=y_tk_m, y=y_t, rowvar=False)
-        sigma_ytkm_xtkm = np.cov(m=y_tk_m, y=x_tk_m, rowvar=False)
-        sigma_ytkm_ytkm = np.cov(m=y_tk_m, y=y_tk_m, rowvar=False)
+        sigma_xt_xt = np.cov(m=x_t, y=x_t, rowvar=True)    # each column represents a variable, while the rows contain observations
+        sigma_xt_yt = np.cov(m=x_t, y=y_t, rowvar=True)
+        sigma_xt_xtkm = np.cov(m=x_t, y=x_tk_m, rowvar=True)
+        sigma_xt_ytkm = np.cov(m=x_t, y=y_tk_m, rowvar=True)
+
+        sigma_yt_xt = np.cov(m=y_t, y=x_t, rowvar=True)
+        sigma_yt_yt = np.cov(m=y_t, y=y_t, rowvar=True)
+        sigma_yt_xtkm = np.cov(m=y_t, y=x_tk_m, rowvar=True)
+        sigma_yt_ytkm = np.cov(m=y_t, y=y_tk_m, rowvar=True)
+
+        sigma_xtkm_xt = np.cov(m=x_tk_m, y=x_t, rowvar=True)
+        sigma_xtkm_yt = np.cov(m=x_tk_m, y=y_t, rowvar=True)
+        sigma_xtkm_xtkm = np.cov(m=x_tk_m, y=x_tk_m, rowvar=True)
+        sigma_xtkm_ytkm = np.cov(m=x_tk_m, y=y_tk_m, rowvar=True)
+
+        sigma_ytkm_xt = np.cov(m=y_tk_m, y=x_t, rowvar=True)
+        sigma_ytkm_yt = np.cov(m=y_tk_m, y=y_t, rowvar=True)
+        sigma_ytkm_xtkm = np.cov(m=y_tk_m, y=x_tk_m, rowvar=True)
+        sigma_ytkm_ytkm = np.cov(m=y_tk_m, y=y_tk_m, rowvar=True)
+
+        sigma = np.cov(m=x, y=y, rowvar=True)
+        """ sigma = ( sigma_xt_xt   sigma_xt_yt     sigma_xt_xtkm       sigma_xt_ytkm ) 
+                    ( sigma_yt_xt   sigma_yt_yt     sigma_yt_xtkm       sigma_yt_ytkm )
+                    ( sigma_xtkm_xt sigma_xtkm_yt   sigma_xtkm_xtkm     sigma_xtkm_ytkm )
+                    ( sigma_ytkm_xt sigma_ytkm_yt   sigma_ytkm_xtkm     sigma_ytkm_ytkm )
+        """
+
+        sigma_xt_xt = sigma[    0:x_t_dim,                          0:x_t_dim]
+        sigma_xt_yt = sigma[    0:x_t_dim,                          x_t_dim:x_t_dim + y_t_dim]
+        sigma_xt_xtkm = sigma[  0:x_t_dim,                          x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
+        sigma_xt_ytkm = sigma[  0:x_t_dim,                          x_t_dim + y_t_dim + x_tk_m_dim:]
+
+        sigma_yt_xt = sigma[    x_t_dim:x_t_dim + y_t_dim,          0:x_t_dim]
+        sigma_yt_yt = sigma[    x_t_dim:x_t_dim + y_t_dim:x_t_dim,  x_t_dim:x_t_dim + y_t_dim]
+        sigma_yt_xtkm = sigma[  x_t_dim:x_t_dim + y_t_dim:x_t_dim,  x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
+        sigma_yt_ytkm = sigma[  x_t_dim:x_t_dim + y_t_dim:x_t_dim,  x_t_dim + y_t_dim + x_tk_m_dim:]
+
+        sigma_xtkm_xt = sigma[  x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,      0:x_t_dim]
+        sigma_xtkm_yt = sigma[  x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,      x_t_dim:x_t_dim + y_t_dim]
+        sigma_xtkm_xtkm = sigma[x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,    x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
+        sigma_xtkm_ytkm = sigma[x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim,    x_t_dim + y_t_dim + x_tk_m_dim:]
+
+        sigma_ytkm_xt = sigma[  x_t_dim + y_t_dim + x_tk_m_dim:,      0:x_t_dim]
+        sigma_ytkm_yt = sigma[  x_t_dim + y_t_dim + x_tk_m_dim:,      x_t_dim:x_t_dim + y_t_dim]
+        sigma_ytkm_xtkm = sigma[x_t_dim + y_t_dim + x_tk_m_dim:,    x_t_dim + y_t_dim:x_t_dim + y_t_dim + x_tk_m_dim]
+        sigma_ytkm_ytkm = sigma[x_t_dim + y_t_dim + x_tk_m_dim:,    x_t_dim + y_t_dim + x_tk_m_dim:]
 
         eta_xtkm = 0.00001
         eta_xt = eta_xtkm
         eta_yt = eta_xtkm
+
 
         sigma_tilde_ytkm_xt_xtkm = sigma_ytkm_xt\
                                  - np.dot(np.dot(2 * sigma_ytkm_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt)\
@@ -79,16 +120,19 @@ class CausalCalculator:
                                    - np.dot(np.dot(2 * sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt) \
                                    + np.dot(np.dot(np.dot(np.dot(sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_xt)
 
-        sigma_tilde_xt_ytkm_xtkm = sigma_xt_xt \
+        # print sigma_xt_xt.shape
+        # print (np.dot(np.dot(2 * sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)).shape
+        # print (np.dot(np.dot(np.dot(np.dot(sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)).shape
+        sigma_tilde_xt_ytkm_xtkm = sigma_xt_ytkm \
                                    - np.dot(np.dot(2 * sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm) \
                                    + np.dot(np.dot(np.dot(np.dot(sigma_xt_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)
 
-        sigma_tilde_ytkm_ytkm_xtkm = sigma_ytkm_xt \
+        sigma_tilde_ytkm_ytkm_xtkm = sigma_ytkm_ytkm \
                                    - np.dot(np.dot(2 * sigma_ytkm_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm) \
                                    + np.dot(np.dot(np.dot(np.dot(sigma_ytkm_xtkm, np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))),sigma_xtkm_xtkm), np.linalg.inv(self.calcSigmaHat(sigma=sigma_xtkm_xtkm, eta=eta_xtkm))), sigma_xtkm_ytkm)
 
         A = np.dot(np.dot(sigma_tilde_ytkm_xt_xtkm, np.linalg.inv(sigma_tilde_xt_xt_xtkm + eta_xt * np.identity(sigma_tilde_xt_xt_xtkm.shape[0]))), sigma_tilde_xt_ytkm_xtkm)
-        B = sigma_tilde_ytkm_ytkm_xtkm + eta_yt * np.identity(sigma_tilde_xt_xt_xtkm.shape[0])
+        B = sigma_tilde_ytkm_ytkm_xtkm + eta_yt * np.identity(sigma_tilde_ytkm_ytkm_xtkm.shape[0])
 
         eigenvalues = np.real(linalg.eig(a=A, b=B)[0])
         eigenvalue = np.max(eigenvalues)

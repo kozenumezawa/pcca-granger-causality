@@ -20,12 +20,14 @@ if __name__ == "__main__":
     m_x = 3         # the number of variables of X
     m_y = 3         # the number of variables of X
 
-    mean, sigma = 0, 0.1
-    s_x = np.array([np.random.normal(mean, sigma, m_x) for i in range(N)])
-    s_y = np.array([np.random.normal(mean, sigma, m_y) for i in range(N)])
+    mean = 0
+    sigma_x = 0.02
+    sigma_y = 0.1
+    s_x = np.array([np.random.normal(mean, sigma_x, m_x) for _ in range(N)])
+    s_y = np.array([np.random.normal(mean, sigma_y, m_y) for _ in range(N)])
 
-    X = np.array([np.zeros(m_x) for i in range(N)])
-    Y = np.array([np.zeros(m_y) for i in range(N)])
+    X = np.array([np.zeros(m_x) for _ in range(N)])
+    Y = np.array([np.zeros(m_y) for _ in range(N)])
     A = np.array([
         [0.3, 0.3, 0.3],
         [0.3, 0.3, 0.3],
